@@ -102,12 +102,12 @@ Use the [issue tracker](https://github.com/7ossam81/EvoloPy/issues).
 
 ## Additional Changes
 
-# Installation
+### Installation
 pip install ipykernel 
 
 Note: When encountering version matching issues --> just delete the venv and create a new one and re-install all pip packages.
 
-# Changes
+### Changes
 Added the follwing files:
 - Rastrigin.ipynb # for GWO experiments with Rastrigin (Multiple and Single Runs)
 - plot_failedExp.py # fucntions to generate plot for single run experiments
@@ -120,7 +120,7 @@ Added the follwing files:
 
 Note: EvoloPy.ipynb and example.py are just example files originally provided by the repo
 
-# To re-run experiments
+### To re-run experiments
 Use the Rastrigin.ipynb file. Define the params (NumRuns, Iterations, Dimensions) and run the code to plot the results.
 
 Note: The Single run plots only works when NumRuns=1.
