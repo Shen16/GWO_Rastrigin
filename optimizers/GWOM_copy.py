@@ -38,16 +38,6 @@ def GWOM(objf, lb, ub, dim, SearchAgents_no, Max_iter, no_repeat):
     Delta_pos = numpy.zeros(dim)
     Delta_score = float("inf")
 
-    # ^^^^^^^^^^^ Initialize temp alpha, beta, and delta_pos for exploitation phases ^^^^^^^^^^^
-    Alpha_pos_global, Alpha_score_global = None, None
-    Beta_pos_global, Beta_score_global = None, None
-    Delta_pos_global, Delta_score_global = None, None
-    Positions_global_alpha, Positions_global_beta, Positions_global_delta = None, None, None
-    in_exploitation = False
-    pos_idx_alpha, pos_idx_beta, pos_idx_delta = -1,-1,-1
-    # ^^^^^^^^^^^^^^END ^^^^^^^^^^^^^^
-
-
     if not isinstance(lb, list):
         lb = [lb] * dim
     if not isinstance(ub, list):
@@ -84,49 +74,6 @@ def GWOM(objf, lb, ub, dim, SearchAgents_no, Max_iter, no_repeat):
     iter_par_i =0
     for l in range(0, Max_iter):
         for i in range(0, SearchAgents_no):
-
-            # ^^^^^^^^^ If Exploitation phase refresh alpha, beta, delta ^^^^^^^^^^^^^^^
-            if (l // cycles) % 2 == 1:
-                if not in_exploitation:  # First iteration of exploitation
-
-                    # Store global aplha, beta, delta and Positions
-                    Alpha_pos_global, Alpha_score_global = Alpha_pos.copy(), Alpha_score
-                    Beta_pos_global, Beta_score_global = Beta_pos.copy(), Beta_score
-                    Delta_pos_global, Delta_score_global = Delta_pos.copy(), Delta_score
-                    Positions_global_alpha, Positions_global_beta, Positions_global_delta = pos_idx_alpha, pos_idx_beta, pos_idx_delta
-                    
-                    # initialize alpha, beta, and delta_pos
-                    Alpha_pos, Alpha_score = numpy.zeros(dim), float("inf")
-                    Beta_pos, Beta_score = numpy.zeros(dim), float("inf")
-                    Delta_pos, Delta_score = numpy.zeros(dim), float("inf")
-                    in_exploitation = True
-                    # also initialize pos_idx_alpha, pos_idx_beta, pos_idx_delta indices of Positions to numpy.zeros(dim)
-                    Positions[pos_idx_alpha, :], Positions[pos_idx_beta, :], Positions[pos_idx_delta, :] = numpy.zeros(dim), numpy.zeros(dim), numpy.zeros(dim)
-                
-                else: # Exploration phase
-                    if in_exploitation:  # End of the exploitation phase
-                        # Compare and update variables- if global was better then revert to it, otherwise keep as is
-                        if Alpha_score_global < Alpha_score: 
-                            Alpha_pos, Alpha_score = Alpha_pos_global.copy(), Alpha_score_global
-                            Positions[Positions_global_alpha, :] = Alpha_pos_global.copy() # Note: puts it back in original position (not necessary current alpha pos) 
-
-                        if Beta_score_global < Beta_score:
-                            Beta_pos, Beta_score = Beta_pos_global.copy(), Beta_score_global
-                            Positions[Positions_global_beta, :] = Beta_pos_global.copy()
-                        
-                        if Delta_score_global < Delta_score:
-                            Delta_pos, Delta_score = Delta_pos_global.copy(), Delta_score_global
-                            Positions[Positions_global_delta, :] = Delta_pos_global.copy()
-
-                    # reset glob variables and flags
-                    Alpha_pos_global, Alpha_score_global = None, None
-                    Beta_pos_global, Beta_score_global = None, None
-                    Delta_pos_global, Delta_score_global = None, None
-                    Positions_global_alpha, Positions_global_beta, Positions_global_delta = -1, -1, -1
-                    in_exploitation = False
-                    
-            # ^^^^^^^^^ END ^^^^^^^^^^^^^^^            
-
 
             # Return back the search agents that go beyond the boundaries of the search space
             for j in range(dim):
@@ -167,28 +114,22 @@ def GWOM(objf, lb, ub, dim, SearchAgents_no, Max_iter, no_repeat):
             if fitness < Alpha_score: # Alpha gets updated so SE or DE
                 Delta_score = Beta_score  # Update delte
                 Delta_pos = Beta_pos.copy()
-                pos_idx_delta= pos_idx_beta # ^^^^^^
                 Beta_score = Alpha_score  # Update beta
                 Beta_pos = Alpha_pos.copy()
-                pos_idx_beta= pos_idx_alpha # ^^^^^^
                 Alpha_score = fitness
                 # Update alpha
                 Alpha_pos = Positions[i, :].copy()
-                pos_idx_alpha= i # ^^^^^^
                 
 
             if fitness > Alpha_score and fitness < Beta_score:
                 Delta_score = Beta_score  # Update delte
                 Delta_pos = Beta_pos.copy()
-                pos_idx_delta= pos_idx_beta # ^^^^^^
                 Beta_score = fitness  # Update beta
                 Beta_pos = Positions[i, :].copy()
-                pos_idx_beta= i # ^^^^^^
 
             if fitness > Alpha_score and fitness > Beta_score and fitness < Delta_score:
                 Delta_score = fitness  # Update delta
                 Delta_pos = Positions[i, :].copy()
-                pos_idx_delta= i  # ^^^^^^
             
             # -------  MEASUREMENTS FOR ALPHA UPDATES (should be done after alpha update)-----------
             
