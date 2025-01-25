@@ -26,9 +26,9 @@ class solution:
         self.exp_dict= {"SE": [], "DE": [], "FE": [], "SR": []} 
         self.L_ref_fitness=[]
         self.alpha_fitness={}
-        self.alpha_dist_better= None
-        self.alpha_dist_worse= None
+        self.alpha_dist_better= []
+        self.alpha_dist_worse= []
         self.alpha_SE_count=0
-        self.SE_alpha_dist= None
+        self.SE_alpha_dist= []
 
 

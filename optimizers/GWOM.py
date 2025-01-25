@@ -65,9 +65,9 @@ def GWOM(objf, lb, ub, dim, SearchAgents_no, Max_iter, no_repeat):
 
     # initialize datapoints to collect for failed exploration
     if no_repeat:
-        s.SE_alpha_dist= numpy.zeros(Max_iter*SearchAgents_no)
-        s.alpha_dist_better= numpy.full(Max_iter*SearchAgents_no, numpy.nan)
-        s.alpha_dist_worse= numpy.full(Max_iter*SearchAgents_no, numpy.nan)
+        s.SE_alpha_dist= numpy.zeros(Max_iter*SearchAgents_no) # [0]*(Max_iter*SearchAgents_no) #
+        s.alpha_dist_better= numpy.full(Max_iter*SearchAgents_no, numpy.nan) # [float('nan')]*(Max_iter*SearchAgents_no)
+        s.alpha_dist_worse= numpy.full(Max_iter*SearchAgents_no, numpy.nan) # [float('nan')]*(Max_iter*SearchAgents_no) 
 
         # Need to specify size of aplha dicts as well (since not every iter alpha gets updated)
         s.exp_dict["SE"]= [None]*(Max_iter*SearchAgents_no) 
@@ -191,27 +191,28 @@ def GWOM(objf, lb, ub, dim, SearchAgents_no, Max_iter, no_repeat):
                 pos_idx_delta= i  # ^^^^^^
             
             # -------  MEASUREMENTS FOR ALPHA UPDATES (should be done after alpha update)-----------
-            
-            # --------- Measure dist moved for all alpha updates ---------
-            ref_dist_moved= abs(numpy.linalg.norm(numpy.array(old_Alpha_pos) - numpy.array(Alpha_pos))) # measure all dist of Alpha updates
-            if objf(Alpha_pos)< objf(old_Alpha_pos): #better
-                s.alpha_dist_better[iter_par_i]= ref_dist_moved
-            else:
-                s.alpha_dist_worse[iter_par_i] = ref_dist_moved
-
-            # ------- Measure SE of Alpha  -----------
-            return_list2= measure_exploration(old_Alpha_pos, Alpha_pos, objf)
-            if return_list2[0] != "None": # if not exploitation
-                exp_type, relF_curr = return_list2[0], return_list2[1]
-                if exp_type== "SE":
-                    s.alpha_SE_count+= 1
-                    # measure euclidean dist between old and new alpha
-                    distance= abs(numpy.linalg.norm(numpy.array(old_Alpha_pos) -numpy.array(Alpha_pos))) # L2 Norm # taking abs to measure magnitude only
-                    s.SE_alpha_dist[iter_par_i]= distance
+            if no_repeat:
+                # --------- Measure dist moved for all alpha updates ---------
+                #print('ITER:', iter_par_i, "s.alpha_dist_worse", s.alpha_dist_worse) # debug
+                ref_dist_moved= abs(numpy.linalg.norm(numpy.array(old_Alpha_pos) - numpy.array(Alpha_pos))) # measure all dist of Alpha updates
+                if objf(Alpha_pos)< objf(old_Alpha_pos): #better
+                    s.alpha_dist_better[iter_par_i]= ref_dist_moved
                 else:
-                    s.SE_alpha_dist[iter_par_i]= None # exploration but not SE
-            else:
-                s.SE_alpha_dist[iter_par_i]= None # exploitation
+                    s.alpha_dist_worse[iter_par_i] = ref_dist_moved
+
+                # ------- Measure SE of Alpha  -----------
+                return_list2= measure_exploration(old_Alpha_pos, Alpha_pos, objf)
+                if return_list2[0] != "None": # if not exploitation
+                    exp_type, relF_curr = return_list2[0], return_list2[1]
+                    if exp_type== "SE":
+                        s.alpha_SE_count+= 1
+                        # measure euclidean dist between old and new alpha
+                        distance= abs(numpy.linalg.norm(numpy.array(old_Alpha_pos) -numpy.array(Alpha_pos))) # L2 Norm # taking abs to measure magnitude only
+                        s.SE_alpha_dist[iter_par_i]= distance
+                    else:
+                        s.SE_alpha_dist[iter_par_i]= None # exploration but not SE
+                else:
+                    s.SE_alpha_dist[iter_par_i]= None # exploitation
                     
             # ------------    END  -------------------
             

@@ -128,27 +128,27 @@ def GWO(objf, lb, ub, dim, SearchAgents_no, Max_iter, no_repeat):
                 Delta_pos = Positions[i, :].copy()
             
             # -------  MEASUREMENTS FOR ALPHA UPDATES (should be done after alpha update)-----------
-            
+            if no_repeat:
             # --------- Measure dist moved for all alpha updates ---------
-            ref_dist_moved= abs(numpy.linalg.norm(numpy.array(old_Alpha_pos) - numpy.array(Alpha_pos))) # measure all dist of Alpha updates
-            if objf(Alpha_pos)< objf(old_Alpha_pos): #better
-                s.alpha_dist_better[iter_par_i]= ref_dist_moved
-            else:
-                s.alpha_dist_worse[iter_par_i] = ref_dist_moved
-
-            # ------- Measure SE of Alpha  -----------
-            return_list2= measure_exploration(old_Alpha_pos, Alpha_pos, objf)
-            if return_list2[0] != "None": # if not exploitation
-                exp_type, relF_curr = return_list2[0], return_list2[1]
-                if exp_type== "SE":
-                    s.alpha_SE_count+= 1
-                    # measure euclidean dist between old and new alpha
-                    distance= abs(numpy.linalg.norm(numpy.array(old_Alpha_pos) -numpy.array(Alpha_pos))) # L2 Norm # taking abs to measure magnitude only
-                    s.SE_alpha_dist[iter_par_i]= distance
+                ref_dist_moved= abs(numpy.linalg.norm(numpy.array(old_Alpha_pos) - numpy.array(Alpha_pos))) # measure all dist of Alpha updates
+                if objf(Alpha_pos)< objf(old_Alpha_pos): #better
+                    s.alpha_dist_better[iter_par_i]= ref_dist_moved
                 else:
-                    s.SE_alpha_dist[iter_par_i]= None # exploration but not SE
-            else:
-                s.SE_alpha_dist[iter_par_i]= None # exploitation
+                    s.alpha_dist_worse[iter_par_i] = ref_dist_moved
+
+                # ------- Measure SE of Alpha  -----------
+                return_list2= measure_exploration(old_Alpha_pos, Alpha_pos, objf)
+                if return_list2[0] != "None": # if not exploitation
+                    exp_type, relF_curr = return_list2[0], return_list2[1]
+                    if exp_type== "SE":
+                        s.alpha_SE_count+= 1
+                        # measure euclidean dist between old and new alpha
+                        distance= abs(numpy.linalg.norm(numpy.array(old_Alpha_pos) -numpy.array(Alpha_pos))) # L2 Norm # taking abs to measure magnitude only
+                        s.SE_alpha_dist[iter_par_i]= distance
+                    else:
+                        s.SE_alpha_dist[iter_par_i]= None # exploration but not SE
+                else:
+                    s.SE_alpha_dist[iter_par_i]= None # exploitation
                     
             # ------------    END  -------------------
             
